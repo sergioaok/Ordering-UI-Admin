@@ -43,6 +43,15 @@ const easeInOutQuad = (t, b, c, d) => {
 }
 
 /**
+ * Function to transform bytes to kb
+ * @param {number} bytes for transform
+ *
+ */
+export const bytesConverter = bytes => {
+  return Math.floor(bytes / 1024)
+}
+
+/**
  * Function to do scroll of one element to another
  * @param {*} element = parent element
  * @param {*} to = position Top of child element
@@ -114,4 +123,40 @@ export const getAgoMinutes = (time) => {
   } else if (hours > 0) {
     return `-${hours}:${minutes} hrs`
   } else return `-00:${minutes} hrs`
+}
+
+/**
+ * List of fields with correct order
+ */
+export const fieldsToSort = ['name', 'lastname', 'middle_name', 'second_lastname', 'email']
+/**
+ * Function to return a array sorted by certain fields
+ * @param fields Array with right order
+ * @param array Array to sort
+ */
+export const sortInputFields = ({ fields, values }) => {
+  let fieldsBase = fields
+  const fieldsSorted = []
+  const fieldsArray = Array.isArray(values) ? values : Object.values(values)
+
+  if (!fieldsBase) {
+    fieldsBase = fieldsToSort
+  }
+
+  fieldsBase.forEach(f => {
+    fieldsArray.forEach(field => {
+      if (f === field.code) {
+        fieldsSorted.push(field)
+      }
+    })
+  })
+  return fieldsSorted
+}
+
+/**
+* Function to return a static google maps image based in location
+* @param {object} param object with latitude and logitude
+*/
+export const getGoogleMapImage = ({ lat, lng }, apiKey) => {
+  return `https://maps.googleapis.com/maps/api/staticmap?size=500x190&center=${lat},${lng}&zoom=17&scale=2&maptype=roadmap&&markers=icon:https://res.cloudinary.com/ditpjbrmz/image/upload/f_auto,q_auto,w_45,q_auto:best,q_auto:best/v1564675872/marker-customer_kvxric.png%7Ccolor:white%7C${lat},${lng}&key=${apiKey}`
 }

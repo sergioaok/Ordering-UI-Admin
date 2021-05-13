@@ -13,6 +13,7 @@ import { Header } from './components/Header'
 import { Image } from './components/Image'
 import { LoginForm } from './components/LoginForm'
 import { LogoutButton } from './components/LogoutButton'
+import { LateralMenu } from './components/LateralMenu'
 import { Messages } from './components/Messages'
 import { MobileSidebarMenu } from './components/MobileSidebarMenu'
 import { Modal } from './components/Modal'
@@ -32,6 +33,7 @@ import { SideMenu } from './components/SideMenu'
 import { SmallOrderItemAccordion } from './components/SmallOrderItemAccordion'
 import { SpinnerLoader } from './components/SpinnerLoader'
 import { UserPopover } from './components/UserPopover'
+import { UserListing } from './components/UserListing'
 import { MainOrdersManager } from './components/MainOrdersManager'
 
 import { AdminLayout } from './layouts/AdminLayout'
@@ -60,6 +62,7 @@ export {
   GroupTypeSelector,
   Header,
   Image,
+  LateralMenu,
   LoginForm,
   LogoutButton,
   Messages,
@@ -81,6 +84,7 @@ export {
   SmallOrderItemAccordion,
   SpinnerLoader,
   UserPopover,
+  UserListing,
   MainOrdersManager,
 
   // Contexts

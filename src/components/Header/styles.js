@@ -88,4 +88,24 @@ export const OverViewControlButton = styled.button`
   }
 `
 
-export const SendFeedback = styled.div``
+export const MobileMenu = styled.div`
+  display: block;
+  margin: auto 10px;
+  @media (min-width: 769px){
+    display: none;
+  }
+
+  svg {
+    font-size: 38px;
+  }
+`
+
+export const Overlayer = styled.div`
+  background: rgba(0, 0, 0, 0.3);
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 1150;
+`

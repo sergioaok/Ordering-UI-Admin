@@ -143,6 +143,16 @@ export const Select = styled.div`
     border-color: ${props => props.theme.colors.btnPrimary};
     border-radius: 6px;
   `}
+
+  &.rectangle-select {
+    border-radius: 5px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    > div:first-child {
+      padding: 10px 15px;
+    }
+    width: 100%;
+  }
 `
 
 export const Chevron = styled.div`

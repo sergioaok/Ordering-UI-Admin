@@ -28,6 +28,10 @@ export const Input = styled.input`
   }
 `
 
+export const RectangleInput = styled(Input)`
+  border-radius: 5px;
+`
+
 export const InputGroup = styled.div`
   display: flex;
 
@@ -115,5 +119,31 @@ export const InputGroupPrimary = styled(InputGroup)`
   & > ${InputGroupLeft} {
     color: ${props => props.theme.colors.primary};
     border-color: ${props => props.theme.colors.primary};
+  }
+`
+
+export const RectTextArea = styled.textarea`
+  box-sizing: border-box;
+  background: #FFF;
+  color: #010300;
+  border: 1px solid #707070;
+  border-radius: 5px;
+  font-size: 16px;
+  padding: 7px 15px;
+  outline: none;
+  resize: none;
+  margin-bottom: 20px;
+  &:focus {
+    border-color: ${() => darken(0.07, '#CCC')};
+  }
+  ${({ w }) => w && css`
+    width: 20%;
+  `}
+  &::placeholder,
+  &::-webkit-input-placeholder {
+    color: #DBDCDB;
+  }
+  &:-ms-input-placeholder {
+    color: #DBDCDB;
   }
 `
