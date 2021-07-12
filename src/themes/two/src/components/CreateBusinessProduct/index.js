@@ -105,7 +105,7 @@ const CreateBusinessProductUI = (props) => {
   }, [formState])
 
   useEffect(() => {
-    if (!formState?.result.error && !formState?.loading && formState?.result?.result) {
+    if (!formState?.loading && !formState?.result.error && formState?.result?.result) {
       const toastConfigure = {
         position: 'bottom-right',
         autoClose: 3000,
@@ -115,7 +115,7 @@ const CreateBusinessProductUI = (props) => {
         draggable: true,
         progress: undefined
       }
-      const content = formState?.result?.result
+      const content = t('PRODUCT_ADD', 'Product added')
       toast.dark(content, toastConfigure)
     }
   }, [formState?.loading])

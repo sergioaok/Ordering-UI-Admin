@@ -109,7 +109,7 @@ const SingleBusinessProductUI = (props) => {
   }, [productFormState])
 
   useEffect(() => {
-    if (productFormState?.changes && !productFormState?.result.error && !productFormState?.loading) {
+    if (!productFormState?.loading && !productFormState?.result.error && productFormState?.result?.result) {
       const toastConfigure = {
         position: 'bottom-right',
         autoClose: 3000,
@@ -119,7 +119,10 @@ const SingleBusinessProductUI = (props) => {
         draggable: true,
         progress: undefined
       }
-      const content = productFormState?.result?.result
+      console.log(productFormState?.result?.result)
+      const content = productFormState?.result?.result?.id
+        ? t('PRODUCT_UPDATE', 'Product Updated')
+        : t('PRODUCT_DELETE', 'Product Deleted')
       toast.dark(content, toastConfigure)
     }
   }, [productFormState?.loading])
@@ -185,15 +188,12 @@ const SingleBusinessProductUI = (props) => {
                             disabled={productFormState?.loading}
                           >
                             {
-                              productFormState?.changes?.images
-                                ? (
-                                  <img src={productFormState?.changes?.images} alt='business type image' loading='lazy' />
-                                )
-                                : (
-                                  <UploadWrapper>
-                                    <BiImage />
-                                  </UploadWrapper>
-                                )
+                              (!productFormState.changes?.images || productFormState.result?.result === 'Network Error' || productFormState.result?.error)
+                                ? (product?.images
+                                  ? (<img src={product?.images} alt='category image' loading='lazy' />)
+                                  : <UploadWrapper><BiImage /></UploadWrapper>)
+                                : productFormState?.changes?.images &&
+                                  <img src={productFormState?.changes?.images} alt='category image' loading='lazy' />
                             }
                           </DragAndDrop>
                         </ExamineClick>
@@ -203,7 +203,11 @@ const SingleBusinessProductUI = (props) => {
                           <input
                             type='text'
                             name='name'
-                            value={productFormState?.changes?.name || ''}
+                            defaultValue={
+                              productFormState?.result?.result
+                                ? productFormState?.result?.result?.name
+                                : productFormState?.changes?.name ?? product?.name ?? ''
+                            }
                             onChange={handleChangeInput}
                             autoComplete='off'
                           />
@@ -219,7 +223,11 @@ const SingleBusinessProductUI = (props) => {
                         <input
                           type='text'
                           name='price'
-                          value={productFormState?.changes?.price || ''}
+                          defaultValue={
+                            productFormState?.result?.result
+                              ? productFormState?.result?.result?.price
+                              : productFormState?.changes?.price ?? product?.price ?? ''
+                          }
                           onChange={handleChangeInput}
                           autoComplete='off'
                         />
@@ -233,7 +241,11 @@ const SingleBusinessProductUI = (props) => {
                       <InfoBlock>
                         <textarea
                           name='description'
-                          value={productFormState?.changes?.description || ''}
+                          defaultValue={
+                            productFormState?.result?.result
+                              ? productFormState?.result?.result?.description
+                              : productFormState?.changes?.description ?? product?.description ?? ''
+                          }
                           onChange={handleChangeInput}
                           autoComplete='off'
                           className='description'
@@ -250,7 +262,11 @@ const SingleBusinessProductUI = (props) => {
                         : <span>{t('DISABLE', 'Disable')}</span>
                     }
                     <Switch
-                      defaultChecked={product?.enabled || false}
+                      defaultChecked={
+                        productFormState?.result?.result
+                          ? productFormState?.result?.result?.enabled
+                          : productFormState?.changes?.enabled ?? product?.enabled ?? true
+                      }
                       onChange={handleChangeProductActive}
                     />
                   </BusinessEnableWrapper>

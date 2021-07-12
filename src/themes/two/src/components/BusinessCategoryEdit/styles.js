@@ -43,7 +43,7 @@ export const SkeletonWrapper = styled.div`
   }
 `
 
-export const EditCategoryContent = styled.div`
+export const CategoryForm = styled.form`
   padding: 20px;
   box-sizing: border-box;
   width: 100%;

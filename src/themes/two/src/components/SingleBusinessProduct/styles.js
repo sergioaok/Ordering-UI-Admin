@@ -17,7 +17,7 @@ export const SingleListBusinessContainer = styled.tbody`
 
   &:hover {
     background: #E9F2FE;
-    input {
+    input, textarea {
       background: #E9F2FE;
     }
   }
@@ -100,7 +100,7 @@ export const BusinessEnableWrapper = styled.div`
   align-items: center;
   width: fit-content;
   span {
-    font-size: 14px;
+    font-size: 13px;
     ${props => props.theme?.rtl ? css`
       padding-left: 10px;
     ` : css`
@@ -173,12 +173,13 @@ export const ProductTypeImage = styled.div`
 
 export const UploadWrapper = styled.div`
   border-radius: 5px;
-  background: ${props => props.theme.colors.lightGray};
+  background: #E9ECEF;
   display: flex;
   justify-content: center;
   align-items: center;
 
   svg {
-    color: white;
+    color: #ADB5BD;
+    font-size: 24px;
   }
 `

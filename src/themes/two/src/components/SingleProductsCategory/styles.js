@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
 
-export const SingleCategoryContainer = styled.div`
+export const SingleCategoryContainer = styled.form`
   display: flex;
   align-items: center;
   padding: 10px;
@@ -21,6 +21,10 @@ export const SingleCategoryContainer = styled.div`
   ${({ active }) => active && css`
   border: 1px solid #2C7BE5;
   box-sizing: border-box;
+  `}
+
+  ${({ addMode }) => addMode && css`
+  border: 1px dashed ${props => props.theme.colors.lightGray};
   `}
 
   .img-section {

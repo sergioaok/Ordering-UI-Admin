@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import BsPlusSquare from '@meronex/icons/bs/BsPlusSquare'
 import { useLanguage } from 'ordering-components-admin'
 import { SingleProductsCategory } from '../SingleProductsCategory'
-import { CreateBusinessCategory } from '../CreateBusinessCategory'
 import {
   CategoryListContainer,
   HeaderContainer,
@@ -15,7 +14,8 @@ export const BusinessProductsCategories = (props) => {
   const {
     businessState,
     categorySelected,
-    onClickCategory
+    onClickCategory,
+    handleUpdateBusinessState
   } = props
 
   const [, t] = useLanguage()
@@ -53,7 +53,13 @@ export const BusinessProductsCategories = (props) => {
           {
             !businessState.loading && (
               isAddCategory
-                ? <CreateBusinessCategory {...props} setIsAddCategory={setIsAddCategory} business={businessState?.business} />
+                ? (
+                  <SingleProductsCategory
+                    business={businessState?.business}
+                    handleUpdateBusinessState={handleUpdateBusinessState}
+                    isAddCategory={isAddCategory}
+                    setIsAddCategory={setIsAddCategory}
+                  />)
                 : <AddCategory onClick={() => setIsAddCategory(true)}>{t('ADD_NEW_CATEGORY', 'Add new Category')}</AddCategory>
             )
           }

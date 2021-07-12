@@ -38,25 +38,16 @@ const BusinessProductsListingUI = (props) => {
   const [viewMethod, setViewMethod] = useState('list')
   const [categoryToEdit, setCategoryToEdit] = useState({ open: false, category: null })
 
-  useEffect(() => {
-    if (categoryId) {
-      setCategoryToEdit({
-        ...categoryToEdit,
-        open: true
-      })
-    }
-  }, [categoryId])
-
-  const handleOpenCategoryDetails = (category) => {
-    if (category?.id === null) return
+  const handleOpenCategoryDetails = (currentCategory) => {
+    if (currentCategory?.id === null) return
     onProductRedirect && onProductRedirect({
       slug: slug,
-      category: category?.id,
+      category: currentCategory?.id,
       product: null
     })
     setCategoryToEdit({
       open: true,
-      category: { ...category }
+      category: { ...currentCategory }
     })
   }
 
@@ -71,6 +62,18 @@ const BusinessProductsListingUI = (props) => {
       category: null
     })
   }
+
+  useEffect(() => {
+    if (categoryId && !businessState?.loading && businessState?.business?.categories) {
+      const currentCategory = businessState.business.categories.find(item => parseInt(item.id) === parseInt(categoryId))
+      if (currentCategory) {
+        setCategoryToEdit({
+          open: true,
+          category: { ...currentCategory }
+        })
+      }
+    }
+  }, [businessState])
 
   return (
     <>
@@ -145,7 +148,7 @@ const BusinessProductsListingUI = (props) => {
             open={categoryToEdit?.open}
             onClose={handleCloseEdit}
             category={categoryToEdit?.category}
-            businessState={businessState}
+            business={businessState?.business}
           />
         )
       }

@@ -74,7 +74,7 @@
     "libphonenumber-js": "^1.9.19",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
-    "ordering-components-admin": "github:Ordering-Inc/ordering-components-admin#development",
+    "ordering-components-admin": "github:Ordering-Inc/ordering-components-admin#new-update",
     "polished": "^3.6.7",
     "prop-types": "^15.7.2",
     "react-bootstrap": "^1.6.0",

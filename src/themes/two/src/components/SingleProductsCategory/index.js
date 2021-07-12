@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { toast } from 'react-toastify'
+import { useForm } from 'react-hook-form'
 import {
   useLanguage,
   DragAndDrop,
@@ -34,18 +35,21 @@ export const SingleProductsCategoryUI = (props) => {
     isSkeleton,
     handelChangeCategoryActive,
     handleUpdateClick,
-    deleteCategory,
+    handleDeleteClick,
     handleOpenCategoryDetails,
     categoryFormState,
     handlechangeImage,
     handleInputChange,
-    isEditMode
+    isAddCategory,
+    setIsAddCategory
   } = props
   const [, t] = useLanguage()
   const theme = useTheme()
+  const formMethods = useForm()
   const [alertState, setAlertState] = useState({ open: false, content: [] })
   const conatinerRef = useRef(null)
   const ProductTypeImgRef = useRef(null)
+  const submitBtnRef = useRef(null)
   const ActionIcon = <FiMoreVertical />
 
   const handleClickImage = () => {
@@ -83,13 +87,21 @@ export const SingleProductsCategoryUI = (props) => {
 
   const closeProductEdit = (e) => {
     const outsideDropdown = !conatinerRef.current?.contains(e.target)
-    if (outsideDropdown) {
-      if (!e.target.closest('.popup-component')) {
-        if (isEditMode && Object.keys(categoryFormState?.changes).length > 0 && !categoryFormState?.loading) {
-          handleUpdateClick()
-        }
+    if (outsideDropdown && !e.target.closest('.popup-component') && !categoryFormState?.loading) {
+      if (Object.keys(categoryFormState.changes).length > 0) {
+        submitBtnRef.current.click()
+      } else if (isAddCategory) {
+        setIsAddCategory(false)
       }
     }
+  }
+
+  const onSubmit = () => {
+    handleUpdateClick()
+  }
+
+  const handleSelectedCategory = (e) => {
+    if (!isAddCategory && handleChangeCategory) handleChangeCategory(e, category)
   }
 
   useEffect(() => {
@@ -107,7 +119,9 @@ export const SingleProductsCategoryUI = (props) => {
   }, [categoryFormState])
 
   useEffect(() => {
-    if (categoryFormState?.changes && !categoryFormState?.result?.error && !categoryFormState?.loading) {
+    if (!categoryFormState?.loading &&
+      !categoryFormState?.result?.error &&
+      categoryFormState?.result?.result) {
       const toastConfigure = {
         position: 'bottom-right',
         autoClose: 3000,
@@ -117,17 +131,43 @@ export const SingleProductsCategoryUI = (props) => {
         draggable: true,
         progress: undefined
       }
-      const content = categoryFormState?.result?.result
+      let content = ''
+      switch (categoryFormState?.status) {
+        case 'update':
+          content = t('CATEGORY_UPDATED', 'Category Updated')
+          break
+        case 'delete':
+          content = t('CATEGORY_DELETE', 'Category Deleted')
+          break
+        case 'add':
+          content = t('CATEGORY_ADD', 'Category Added')
+          break
+        default:
+          content = t('CATEGORY_SAVED', 'Category Saved')
+          break
+      }
       toast.dark(content, toastConfigure)
     }
   }, [categoryFormState?.loading])
 
+  useEffect(() => {
+    if (Object.keys(formMethods.errors).length > 0) {
+      const content = Object.values(formMethods.errors).map(error => error.message)
+      setAlertState({
+        open: true,
+        content
+      })
+    }
+  }, [formMethods.errors])
+
   return (
     <>
       <SingleCategoryContainer
-        active={!isSkeleton && (category?.id === categorySelected?.id)}
-        onClick={(e) => handleChangeCategory(e, category)}
+        active={!isSkeleton && !isAddCategory && (category?.id === categorySelected?.id)}
+        addMode={isAddCategory}
+        onClick={handleSelectedCategory}
         ref={conatinerRef}
+        onSubmit={formMethods.handleSubmit(onSubmit)}
       >
         {
           isSkeleton
@@ -150,15 +190,12 @@ export const SingleProductsCategoryUI = (props) => {
                     disabled={categoryFormState?.loading}
                   >
                     {
-                      categoryFormState?.changes?.image
-                        ? (
-                          <img src={categoryFormState?.changes?.image} alt='business type image' loading='lazy' />
-                        )
-                        : (
-                          <UploadWrapper>
-                            <BiImage />
-                          </UploadWrapper>
-                        )
+                      (!categoryFormState.changes?.image || categoryFormState.result?.result === 'Network Error' || categoryFormState.result?.error)
+                        ? (category?.image
+                          ? (<img src={category?.image} alt='category image' loading='lazy' />)
+                          : <UploadWrapper><BiImage /></UploadWrapper>)
+                        : categoryFormState?.changes?.image &&
+                          <img src={categoryFormState?.changes?.image} alt='category image' loading='lazy' />
                     }
                   </DragAndDrop>
                 </ExamineClick>
@@ -174,8 +211,16 @@ export const SingleProductsCategoryUI = (props) => {
                 <input
                   type='text'
                   name='name'
-                  value={categoryFormState?.changes?.name || ''}
+                  defaultValue={
+                    categoryFormState?.result?.result
+                      ? categoryFormState?.result?.result?.name
+                      : categoryFormState?.changes?.name ?? category?.name ?? ''
+                  }
                   onChange={handleInputChange}
+                  ref={formMethods.register({
+                    required: t('VALIDATION_ERROR_CATEGORY_NAME_REQUIRED', 'Category name is required')
+                  })}
+                  placeholder={t('WRITE_NAME', 'Write name')}
                   autoComplete='off'
                 />
               )
@@ -193,7 +238,11 @@ export const SingleProductsCategoryUI = (props) => {
                           : <span>{t('DISABLE', 'Disable')}</span>
                       }
                       <Switch
-                        defaultChecked={category?.enabled}
+                        defaultChecked={
+                          categoryFormState?.result?.result
+                            ? categoryFormState?.result?.result?.enabled
+                            : categoryFormState?.changes?.enabled ?? category?.enabled ?? true
+                        }
                         onChange={handelChangeCategoryActive}
                       />
                     </>
@@ -210,14 +259,17 @@ export const SingleProductsCategoryUI = (props) => {
                       title={ActionIcon}
                       id={theme?.rtl ? 'dropdown-menu-align-left' : 'dropdown-menu-align-right'}
                     >
-                      <Dropdown.Item onClick={() => handleOpenCategoryDetails(category)}>{t('EDIT', 'Edit')}</Dropdown.Item>
-                      <Dropdown.Item onClick={deleteCategory}>{t('DELETE', 'Delete')}</Dropdown.Item>
+                      {
+                        !isAddCategory && <Dropdown.Item onClick={() => handleOpenCategoryDetails(category)}>{t('EDIT', 'Edit')}</Dropdown.Item>
+                      }
+                      <Dropdown.Item onClick={handleDeleteClick}>{t('DELETE', 'Delete')}</Dropdown.Item>
                     </DropdownButton>
                   )
               }
             </ActionSelectorWrapper>
           </CategoryActionContainer>
         </CategoryContent>
+        <button type='submit' ref={submitBtnRef} style={{ display: 'none' }} />
       </SingleCategoryContainer>
 
       <Alert

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Skeleton from 'react-loading-skeleton'
+import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import {
   useLanguage,
@@ -18,7 +19,7 @@ import FiCamera from '@meronex/icons/fi/FiCamera'
 
 import {
   Container,
-  EditCategoryContent,
+  CategoryForm,
   HeaderContainer,
   BusinessEnableWrapper,
   CategoryTypeImage,
@@ -33,13 +34,14 @@ const BusinessCategoryEditUI = (props) => {
     open,
     onClose,
     formState,
+    category,
     handlechangeImage,
     handleChangeInput,
-    handleUpdateClick,
-    handleChangeCheckBox,
-    businessState
+    handleButtonUpdateClick,
+    handleChangeCheckBox
   } = props
   const [, t] = useLanguage()
+  const formMethods = useForm()
   const { width } = useWindowSize()
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -53,6 +55,12 @@ const BusinessCategoryEditUI = (props) => {
   const handleClose = () => {
     onClose()
     setIsMenuOpen(false)
+  }
+
+  const onSubmit = () => {
+    if (Object.keys(formState.changes).length > 0) {
+      handleButtonUpdateClick()
+    }
   }
 
   const handleClickImage = () => {
@@ -117,7 +125,7 @@ const BusinessCategoryEditUI = (props) => {
   }, [open])
 
   useEffect(() => {
-    if (formState?.changes && !formState?.result.error && !formState?.loading) {
+    if (!formState?.result.error && formState?.result?.result && !formState?.loading) {
       const toastConfigure = {
         position: 'bottom-right',
         autoClose: 3000,
@@ -127,17 +135,27 @@ const BusinessCategoryEditUI = (props) => {
         draggable: true,
         progress: undefined
       }
-      const content = formState?.result?.result
+      const content = t('CATEOGORY_UPDATED', 'Category Updated')
       toast.dark(content, toastConfigure)
     }
   }, [formState?.loading])
 
+  useEffect(() => {
+    if (Object.keys(formMethods.errors).length > 0) {
+      const content = Object.values(formMethods.errors).map(error => error.message)
+      setAlertState({
+        open: true,
+        content
+      })
+    }
+  }, [formMethods.errors])
+
   return (
     <>
       <Container id='editCategory'>
-        <EditCategoryContent>
+        <CategoryForm onSubmit={formMethods.handleSubmit(onSubmit)}>
           {
-            businessState.loading ? (
+            formState?.loading ? (
               <>
                 <HeaderContainer>
                   <BusinessEnableWrapper className='business_enable_control'>
@@ -165,13 +183,19 @@ const BusinessCategoryEditUI = (props) => {
               <>
                 <HeaderContainer>
                   <BusinessEnableWrapper className='business_enable_control'>
-                    {
-                      formState?.changes?.name && (
-                        <span>{formState?.changes?.name}</span>
-                      )
-                    }
+                    <span>
+                      {
+                        formState?.result?.result
+                          ? formState?.result?.result?.name
+                          : formState?.changes?.name ?? category?.name ?? ''
+                      }
+                    </span>
                     <Switch
-                      defaultChecked={formState?.changes?.enabled || false}
+                      defaultChecked={
+                        formState?.result?.result
+                          ? formState?.result?.result?.enabled
+                          : formState?.changes?.enabled ?? category?.enabled ?? false
+                      }
                       onChange={handleChangeCheckBox}
                     />
                   </BusinessEnableWrapper>
@@ -195,9 +219,11 @@ const BusinessCategoryEditUI = (props) => {
                       disabled={formState?.loading}
                     >
                       {
-                      formState?.changes?.image
-                        ? <img src={formState?.changes?.image} alt='business type image' loading='lazy' />
-                        : <div />
+                        (!formState.changes?.image || formState.result?.result === 'Network Error' || formState.result.error)
+                          ? category?.image &&
+                            (<img src={category?.image} alt='category image' loading='lazy' />)
+                          : formState?.changes?.image &&
+                            <img src={formState?.changes?.image} alt='category image' loading='lazy' />
                       }
                       <UploadImageIconContainer>
                         <UploadImageIcon>
@@ -212,19 +238,37 @@ const BusinessCategoryEditUI = (props) => {
                   <Input
                     placeholder={t('Enter_CATEGORY_NAME', 'Enter a category name')}
                     name='name'
-                    defaultValue={formState?.changes.name}
+                    defaultValue={
+                      formState?.result?.result
+                        ? formState?.result?.result?.name
+                        : formState?.changes?.name ?? category?.name ?? ''
+                    }
+                    key={`name: ${
+                      formState?.result?.result
+                      ? formState?.result?.result?.name
+                      : formState?.changes?.name ?? category?.name ?? ''
+                    }`}
                     onChange={handleChangeInput}
+                    ref={formMethods.register({
+                      required: t('VALIDATION_ERROR_CATEGORY_NAME_REQUIRED', 'Category name is required')
+                    })}
                     autoComplete='off'
                   />
                 </CategoryNameWrapper>
                 <BtnWrapper>
-                  <Button onClick={handleUpdateClick}>{t('SAVE', 'Save')}</Button>
+                  <Button
+                    type='submit'
+                    color='primary'
+                    borderRadius='5px'
+                    disabled={formState.loading}
+                  >
+                    {t('SAVE', 'Save')}
+                  </Button>
                 </BtnWrapper>
               </>
             )
           }
-
-        </EditCategoryContent>
+        </CategoryForm>
       </Container>
       <Alert
         title={t('BUSINESS_TYPE', 'Business type')}
